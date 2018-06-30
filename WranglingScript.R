@@ -1,7 +1,7 @@
 library(dplyr)
 library(ggplot2)
 
-LibData <- read.csv("C:/Users/murphyd/Documents/R/SimilarLib/PLS_FY2016_AE_pupld16a.csv", stringsAsFactors = FALSE)
+LibData <- read.csv("PLS_FY2016_AE_pupld16a.csv", stringsAsFactors = FALSE)
 
 # Giving scores for membership in a library cooperative 
 
@@ -46,12 +46,58 @@ minSc <-  min(LibData$TOTINCMscore)
 maxSc <-  max(LibData$TOTINCMscore)
 LibData$TOTINCMscore <- (LibData$TOTINCMscore - minSc) / (maxSc - minSc) 
 
-# Need to add source of money
+# Source of Money
 
-LibData %>% ggplot(aes(log(HRS_OPEN))) + geom_density()
-LibData %>% ggplot(aes(log(TOTCIR))) + geom_density()
-LibData %>% ggplot(aes(log(KIDCIRCL))) + geom_density()
-LibData %>% ggplot(aes(log(TOTPRO))) + geom_density()
-LibData %>% ggplot(aes(log(KIDPRO))) + geom_density()
+LibData$LocIncScore <- LibData$LOCGVT / LibData$TOTINCM
 
-summary(LibData$TOTSTAFF)
+# Hours open
+
+LibData$HRS_OPEN <- ifelse(LibData$HRS_OPEN==0,7,LibData$HRS_OPEN)
+
+LibData$HRS_OPENscore <- log(LibData$HRS_OPEN)
+minSc <-  min(LibData$HRS_OPENscore)
+maxSc <-  max(LibData$HRS_OPENscore)
+LibData$HRS_OPENscore <- (LibData$HRS_OPENscore - minSc) / (maxSc - minSc) 
+
+# Total Circulation
+
+LibData$TOTCIR <- ifelse(LibData$TOTCIR == -1, LibData$KIDCIRCL, LibData$TOTCIR) # replace missing values with children's circ count
+LibData$TOTCIR <- ifelse(LibData$TOTCIR == 0, 10, LibData$TOTCIR) # replace 0 values with small value
+
+
+LibData$TOTCIRscore <- log(LibData$TOTCIR)
+minSc <-  min(LibData$TOTCIRscore)
+maxSc <-  max(LibData$TOTCIRscore)
+LibData$TOTCIRscore <- (LibData$TOTCIRscore - minSc) / (maxSc - minSc) 
+
+# Share of children's circulation
+
+LibData$CircChildscore <- LibData$KIDCIRCL / LibData$TOTCIR
+
+# Number of Programs
+
+LibData$TOTPRO <- ifelse(LibData$TOTPRO == 0,.5, LibData$TOTPRO) # replace 0s with another small number
+
+LibData$TOTPROscore <- log(LibData$TOTPRO)
+minSc <-  min(LibData$TOTPROscore)
+maxSc <-  max(LibData$TOTPROscore)
+LibData$TOTPROscore <- (LibData$TOTPROscore - minSc) / (maxSc - minSc) 
+
+#  Share of children's program
+
+LibData$ChildProgScore <- LibData$KIDPRO / LibData$TOTPRO
+
+# Score for employees
+
+LibData$TOTSTAFFscore <- log(LibData$TOTSTAFF)
+minSc <-  min(LibData$TOTSTAFFscore)
+maxSc <-  max(LibData$TOTSTAFFscore)
+LibData$TOTSTAFFscore <- (LibData$TOTSTAFFscore - minSc) / (maxSc - minSc) 
+
+
+
+
+
+
+
+
