@@ -1,5 +1,6 @@
 library(dplyr)
 library(ggplot2)
+library(tidyr)
 
 LibData <- read.csv("PLS_FY2016_AE_pupld16a.csv", stringsAsFactors = FALSE)
 
@@ -94,10 +95,18 @@ minSc <-  min(LibData$TOTSTAFFscore)
 maxSc <-  max(LibData$TOTSTAFFscore)
 LibData$TOTSTAFFscore <- (LibData$TOTSTAFFscore - minSc) / (maxSc - minSc) 
 
+LibData <- LibData %>% tibble::rownames_to_column()
 
 
 
+Distances <- LibData %>% select(contains("score"))
+Distances$SCORE <- NULL
 
+Distances <- as.data.frame(as.matrix(dist(rbind(Distances))))
+Distances <- Distances %>% tibble::rownames_to_column()
 
+LibData %>% filter(LIBNAME == "WEST ISLIP PUBLIC LIBRARY") %>% select("rowname")
 
+temp <- Distances %>% mutate(rank = row_number(`6316`)) %>% select(`6316`, rowname, rank) %>% filter (rank < 12 ) %>% select(rowname)
 
+View(LibData %>% filter(rowname %in% temp$rowname))
