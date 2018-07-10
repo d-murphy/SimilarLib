@@ -97,13 +97,13 @@ ScoreFactorC <- 100
 ScoreFactorD <- 1000
 
 
-LibData$C_RELATNscore <- LibData$C_RELATNscore * ScoreFactorA
+LibData$C_RELATNscore <- LibData$C_RELATNscore * ScoreFactorB
 LibData$POPU_LSAscore <- LibData$POPU_LSAscore * ScoreFactorD
-LibData$BRANLIBscore  <- LibData$BRANLIBscore * ScoreFactorA
-LibData$BKMOBscore    <- LibData$BKMOBscore * ScoreFactorA
+LibData$BRANLIBscore  <- LibData$BRANLIBscore * ScoreFactorB
+LibData$BKMOBscore    <- LibData$BKMOBscore * ScoreFactorB
 LibData$TOTSTAFFscore <- LibData$TOTSTAFFscore * ScoreFactorC
 LibData$TOTINCMscore <- LibData$TOTINCMscore * ScoreFactorD
-LibData$LocIncScore <- LibData$LocIncScore * ScoreFactorB
+LibData$LocIncScore <- LibData$LocIncScore * ScoreFactorC
 LibData$HRS_OPENscore <- LibData$HRS_OPENscore * ScoreFactorC
 LibData$TOTCIRscore <- LibData$TOTCIRscore * ScoreFactorD
 LibData$CircChildscore <- LibData$CircChildscore * ScoreFactorC
@@ -122,9 +122,23 @@ Distances$SCORE <- NULL
 Distances <- as.data.frame(as.matrix(dist(rbind(Distances))))
 Distances <- Distances %>% tibble::rownames_to_column()
 
-LibData %>% filter(LIBNAME == "PIMA COUNTY PUBLIC LIBRARY") %>% select("rowname")
-
-temp <- Distances %>% mutate(rank = row_number(`83`)) %>% select(`83`, rowname, rank) %>% filter (rank < 12 ) %>% select(rowname)
-
-View(LibData %>% filter(rowname %in% temp$rowname) %>% select(1:5,C_RELATN, POPU_LSA, BRANLIB, BKMOB, TOTSTAFF, TOTINCM, LOCGVT,
-                                                              HRS_OPEN, TOTCIR, KIDCIRCL, TOTPRO, KIDPRO, 153:164))
+Distances <- Distances %>% gather(rownameOf2ndLib, distance, -rowname)
+Distances <- Distances %>% 
+                  filter(rowname != rownameOf2ndLib) %>%
+                  group_by(rowname) %>% 
+                  mutate(rank = rank(distance, ties.method = "first")) %>% 
+                  filter(rank <= 50) %>%
+                  ungroup()
+                  
+temp <- Distances %>% filter(rowname == 1) %>% select(rownameOf2ndLib)
+  
+View(LibData %>% filter(rowname %in% temp$rownameOf2ndLib | rowname == "1"))
+  
+  
+# 
+# LibData %>% filter(LIBNAME == "PIMA COUNTY PUBLIC LIBRARY") %>% select("rowname")
+# 
+# temp <- Distances %>% mutate(rank = row_number(`83`)) %>% select(`83`, rowname, rank) %>% filter (rank < 12 ) %>% select(rowname)
+# 
+# View(LibData %>% filter(rowname %in% temp$rowname) %>% select(1:5,C_RELATN, POPU_LSA, BRANLIB, BKMOB, TOTSTAFF, TOTINCM, LOCGVT,
+#                                                               HRS_OPEN, TOTCIR, KIDCIRCL, TOTPRO, KIDPRO, 153:164))
