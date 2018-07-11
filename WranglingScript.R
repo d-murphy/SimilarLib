@@ -1,6 +1,8 @@
 library(dplyr)
 library(ggplot2)
 library(tidyr)
+library(stringr)
+library(scales)
 
 LibData <- read.csv("PLS_FY2016_AE_pupld16a.csv", stringsAsFactors = FALSE)
 
@@ -124,17 +126,50 @@ Distances <- Distances %>% tibble::rownames_to_column()
 
 Distances <- Distances %>% gather(rownameOf2ndLib, distance, -rowname)
 Distances <- Distances %>% 
-                  filter(rowname != rownameOf2ndLib) %>%
-                  group_by(rowname) %>% 
-                  mutate(rank = rank(distance, ties.method = "first")) %>% 
-                  filter(rank <= 50) %>%
-                  ungroup()
-                  
-temp <- Distances %>% filter(rowname == 1) %>% select(rownameOf2ndLib)
-  
-View(LibData %>% filter(rowname %in% temp$rownameOf2ndLib | rowname == "1"))
-  
-  
+  filter(rowname != rownameOf2ndLib) %>%
+  group_by(rowname) %>% 
+  mutate(rank = rank(distance, ties.method = "first")) %>% 
+  filter(rank <= 25) %>%
+  ungroup()
+
+Distances$rowname <- as.numeric(Distances$rowname)
+Distances$rownameOf2ndLib <- as.numeric(Distances$rownameOf2ndLib)
+
+Distances <- Distances %>% select(rowname, rownameOf2ndLib, rank)
+
+
+
+## Select data to display in shiny app
+
+
+LibDataDisplay <- LibData %>% select(rowname, STABR, LIBNAME, ADDRESS, CITY, ZIP, PHONE, LONGITUD, LATITUDE,
+                                     C_RELATN,POPU_LSA, BRANLIB, BKMOB, TOTSTAFF, TOTINCM, 
+                                     LOCGVT, HRS_OPEN, TOTCIR, KIDCIRCL, TOTPRO, KIDPRO )
+
+LibDataDisplay$rowname <- as.numeric(LibDataDisplay$rowname)
+LibDataDisplay$LIBNAME <- str_to_title(LibDataDisplay$LIBNAME)
+LibDataDisplay$ADDRESS <- str_to_title(LibDataDisplay$ADDRESS)
+LibDataDisplay$CITY <- str_to_title(LibDataDisplay$CITY)
+
+LibDataDisplay$C_RELATN <- ifelse(LibDataDisplay$C_RELATN == "HQ", "Headquarters", 
+                                  ifelse(LibDataDisplay$C_RELATN == "ME", "Member", "No"))
+
+
+LibDataDisplay$`Local Gvt Funding Percentage` <- percent(LibDataDisplay$LOCGVT / LibDataDisplay$TOTINCM )
+LibDataDisplay$`Children's Circulation Share of Total` <- percent(LibDataDisplay$KIDCIRCL / LibDataDisplay$TOTCIR )
+LibDataDisplay$`Children's Programming Share of Total` <- percent(LibDataDisplay$KIDPRO / LibDataDisplay$TOTPRO )
+
+colnames(LibDataDisplay) <- c("rowname", "State", "Library Name", "Address", "City", "Zip Code", "Phone Number", "LONGITUD", "LATITUDE",
+                              "Belongs to a Cooperative", "Population of Legal Service Area", "# of Branch Libraries", "# of Bookmobiles", 
+                              "Total Staff Count", "Total Income", "LOCGVT", "Hours Open", "Total Circulation", "KIDCIRCL", 
+                              "Total Programs", "KIDPRO", "Local Gvt Funding Percentage", "Children's Circulation Share of Total",
+                              "Children's Programming Share of Total")
+
+
+
+
+remove(LibData, ScoreFactorA, ScoreFactorB, ScoreFactorC, ScoreFactorD, maxSc, minSc, lut)
+
 # 
 # LibData %>% filter(LIBNAME == "PIMA COUNTY PUBLIC LIBRARY") %>% select("rowname")
 # 
