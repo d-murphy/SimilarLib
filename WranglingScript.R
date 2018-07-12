@@ -166,7 +166,7 @@ colnames(LibDataDisplay) <- c("rowname", "State", "Library Name", "Address", "Ci
                               "Children's Programming Share of Total")
 
 
-
+LibNames <- LibDataDisplay %>% select(`Library Name`, rowname, State) %>% arrange(`Library Name`)
 
 remove(LibData, ScoreFactorA, ScoreFactorB, ScoreFactorC, ScoreFactorD, maxSc, minSc, lut)
 
