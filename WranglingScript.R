@@ -19,7 +19,7 @@ LibData$C_RELATNscore <- lut[LibData$C_RELATN]
 
 LibData <- LibData %>% filter(POPU_LSA != -3)  #removes entities that are temp. closed
 
-LibData$POPU_LSAscore <- log(LibData$POPU_LSA)
+LibData$POPU_LSAscore <- sqrt(LibData$POPU_LSA)
 minSc <-  min(LibData$POPU_LSAscore)
 maxSc <-  max(LibData$POPU_LSAscore)
 LibData$POPU_LSAscore <- (LibData$POPU_LSAscore - minSc) / (maxSc - minSc) 
@@ -36,7 +36,7 @@ LibData$BKMOBscore <- ifelse(LibData$BKMOB == 0,0,1)
 # Total staff score
 
 LibData$TOTSTAFF <- ifelse(LibData$TOTSTAFF == 0,0.03, LibData$TOTSTAFF) # Moves 0s to 0.03 which is next lowest (log(0) = -Inf)
-LibData$TOTSTAFFscore <- log(LibData$TOTSTAFF)
+LibData$TOTSTAFFscore <-  LibData$TOTSTAFF  # log(LibData$TOTSTAFF)
 minSc <-  min(LibData$TOTSTAFFscore)
 maxSc <-  max(LibData$TOTSTAFFscore)
 LibData$TOTSTAFFscore <- (LibData$TOTSTAFFscore - minSc)  / (maxSc - minSc) 
@@ -45,7 +45,7 @@ LibData$TOTSTAFFscore <- (LibData$TOTSTAFFscore - minSc)  / (maxSc - minSc)
 
 LibData$TOTINCM <- ifelse(LibData$TOTINCM < 2,100,LibData$TOTINCM) # Moves 0s to 100 (log(0) = -Inf)
 
-LibData$TOTINCMscore <- log(LibData$TOTINCM)
+LibData$TOTINCMscore <- sqrt(LibData$TOTINCM)
 minSc <-  min(LibData$TOTINCMscore)
 maxSc <-  max(LibData$TOTINCMscore)
 LibData$TOTINCMscore <- (LibData$TOTINCMscore - minSc) / (maxSc - minSc) 
@@ -58,7 +58,7 @@ LibData$LocIncScore <- LibData$LOCGVT / LibData$TOTINCM
 
 LibData$HRS_OPEN <- ifelse(LibData$HRS_OPEN==0,7,LibData$HRS_OPEN)
 
-LibData$HRS_OPENscore <- log(LibData$HRS_OPEN)
+LibData$HRS_OPENscore <- sqrt(LibData$HRS_OPEN)
 minSc <-  min(LibData$HRS_OPENscore)
 maxSc <-  max(LibData$HRS_OPENscore)
 LibData$HRS_OPENscore <- (LibData$HRS_OPENscore - minSc) / (maxSc - minSc) 
@@ -69,7 +69,7 @@ LibData$TOTCIR <- ifelse(LibData$TOTCIR == -1, LibData$KIDCIRCL, LibData$TOTCIR)
 LibData$TOTCIR <- ifelse(LibData$TOTCIR == 0, 10, LibData$TOTCIR) # replace 0 values with small value
 
 
-LibData$TOTCIRscore <- log(LibData$TOTCIR)
+LibData$TOTCIRscore <- sqrt(LibData$TOTCIR)
 minSc <-  min(LibData$TOTCIRscore)
 maxSc <-  max(LibData$TOTCIRscore)
 LibData$TOTCIRscore <- (LibData$TOTCIRscore - minSc)  / (maxSc - minSc) 
@@ -82,7 +82,7 @@ LibData$CircChildscore <- LibData$KIDCIRCL / LibData$TOTCIR
 
 LibData$TOTPRO <- ifelse(LibData$TOTPRO == 0,.5, LibData$TOTPRO) # replace 0s with another small number
 
-LibData$TOTPROscore <- log(LibData$TOTPRO)
+LibData$TOTPROscore <- sqrt(LibData$TOTPRO)
 minSc <-  min(LibData$TOTPROscore)
 maxSc <-  max(LibData$TOTPROscore)
 LibData$TOTPROscore <- (LibData$TOTPROscore - minSc)  / (maxSc - minSc) 
@@ -99,18 +99,31 @@ ScoreFactorC <- 100
 ScoreFactorD <- 1000
 
 
+# LibData$C_RELATNscore <- LibData$C_RELATNscore * ScoreFactorB
+# LibData$POPU_LSAscore <- LibData$POPU_LSAscore * ScoreFactorD
+# LibData$BRANLIBscore  <- LibData$BRANLIBscore * ScoreFactorB
+# LibData$BKMOBscore    <- LibData$BKMOBscore * ScoreFactorB
+# LibData$TOTSTAFFscore <- LibData$TOTSTAFFscore * ScoreFactorC
+# LibData$TOTINCMscore <- LibData$TOTINCMscore * ScoreFactorD
+# LibData$LocIncScore <- LibData$LocIncScore * ScoreFactorC
+# LibData$HRS_OPENscore <- LibData$HRS_OPENscore * ScoreFactorC
+# LibData$TOTCIRscore <- LibData$TOTCIRscore * ScoreFactorD
+# LibData$CircChildscore <- LibData$CircChildscore * ScoreFactorC
+# LibData$TOTPROscore <- LibData$TOTPROscore * ScoreFactorD
+# LibData$ChildProgScore <- LibData$ChildProgScore * ScoreFactorC
+
 LibData$C_RELATNscore <- LibData$C_RELATNscore * ScoreFactorB
 LibData$POPU_LSAscore <- LibData$POPU_LSAscore * ScoreFactorD
 LibData$BRANLIBscore  <- LibData$BRANLIBscore * ScoreFactorB
 LibData$BKMOBscore    <- LibData$BKMOBscore * ScoreFactorB
 LibData$TOTSTAFFscore <- LibData$TOTSTAFFscore * ScoreFactorC
 LibData$TOTINCMscore <- LibData$TOTINCMscore * ScoreFactorD
-LibData$LocIncScore <- LibData$LocIncScore * ScoreFactorC
+LibData$LocIncScore <- LibData$LocIncScore * ScoreFactorB
 LibData$HRS_OPENscore <- LibData$HRS_OPENscore * ScoreFactorC
 LibData$TOTCIRscore <- LibData$TOTCIRscore * ScoreFactorD
-LibData$CircChildscore <- LibData$CircChildscore * ScoreFactorC
-LibData$TOTPROscore <- LibData$TOTPROscore * ScoreFactorD
-LibData$ChildProgScore <- LibData$ChildProgScore * ScoreFactorC
+LibData$CircChildscore <- LibData$CircChildscore * ScoreFactorB
+LibData$TOTPROscore <- LibData$TOTPROscore * ScoreFactorC
+LibData$ChildProgScore <- LibData$ChildProgScore * ScoreFactorB
 
 
 

@@ -1,4 +1,6 @@
 
+
+
 # Things to do:  
 ## add map
 ## control selection with row number instead of name - see Denver example
@@ -6,7 +8,7 @@
 ## test other grading scripts
 
 
-
+library(dplyr)
 library(shiny)
 
 shinyServer(function(input, output) {
