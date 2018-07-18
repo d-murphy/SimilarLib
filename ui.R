@@ -2,6 +2,7 @@
 library(shiny)
 library(shinythemes)
 library(dplyr)
+library(leaflet)
 
 
 shinyUI(fluidPage(theme = shinytheme("lumen"),
@@ -17,7 +18,7 @@ shinyUI(fluidPage(theme = shinytheme("lumen"),
       uiOutput("inputLibList"),br(),br(),br(),br(),br(),br()
       ),
       column(9,
-             p("map location")
+             leafletOutput("map")
       )
     ),
     fluidRow(

@@ -1,25 +1,17 @@
 
 
 
-# Things to do:  
-## add map
-## control selection with row number instead of name - see Denver example
 ## Add text to homepage describing process
-## test other grading scripts
+## fix color on box
+## update table util
 
 
 library(dplyr)
 library(shiny)
+library(leaflet)
 
 shinyServer(function(input, output) {
 
-  
-  # temp <- Distances %>% filter(rowname == 1) %>% select(rownameOf2ndLib)
-  # 
-  # View(LibData %>% filter(rowname %in% temp$rownameOf2ndLib | rowname == "1"))
-
-
-    
 ## input controls
     
   LibsInState <- reactive({
@@ -32,7 +24,7 @@ shinyServer(function(input, output) {
   output$inputLibList <- renderUI({
     
     selectInput("LibSelect", label = "Select a library: ",
-                choices = LibsInState())
+                choices = LibsInState()$`Library Name`)
     
   })
 
@@ -40,12 +32,17 @@ shinyServer(function(input, output) {
 
   LibSelected <- reactive({
     
-    LibNames %>% filter(`Library Name` == input$LibSelect) %>% select(rowname)
+    LibNames %>% filter(`Library Name` == input$LibSelect & 
+                        State == input$StateSelect) %>% select(rowname)
     
   })
       
   PeerGroup <- reactive({
     
+    validate(
+      need(input$LibSelect != "", "")
+    )
+          
     LibDataDisplay %>% filter(rowname == LibSelected()$rowname) %>%
       bind_rows(
         Distances %>% filter(rowname == LibSelected()$rowname) %>% arrange(rank) %>% select(rank, rownameOf2ndLib) %>%
@@ -62,12 +59,28 @@ shinyServer(function(input, output) {
   
   output$table <- renderDataTable(PeerGroup(), options = list(paging = FALSE, searching = FALSE, pageLength = 26))
   
-  # LibDataTable <- reactive({
-  #   
-  #   LibDataDisplay %>% 
-  #   
-  #   
-  # })
+  PeerGroupMap <- reactive({
+
+    
+    validate(
+      need(input$LibSelect != "", "")
+    )
+    
+        
+    LibDataDisplay %>% filter(rowname == LibSelected()$rowname) %>%
+      bind_rows(
+        Distances %>% filter(rowname == LibSelected()$rowname) %>% select(rank, rownameOf2ndLib) %>%
+          left_join(LibDataDisplay, by = c("rownameOf2ndLib" = "rowname"))
+      )
+    
+  })
   
+  output$map <- renderLeaflet({
+    
+    
+    
+    leaflet() %>% addTiles() %>%
+                    addMarkers(data = PeerGroupMap(), popup = ~as.character(PopupText))
+  })
   
 })

@@ -94,7 +94,7 @@ LibData$ChildProgScore <- LibData$KIDPRO  / LibData$TOTPRO
 # Adjusting weights
 
 ScoreFactorA <- 5
-ScoreFactorB <- 10
+ScoreFactorB <- 50
 ScoreFactorC <- 100
 ScoreFactorD <- 1000
 
@@ -112,17 +112,17 @@ ScoreFactorD <- 1000
 # LibData$TOTPROscore <- LibData$TOTPROscore * ScoreFactorD
 # LibData$ChildProgScore <- LibData$ChildProgScore * ScoreFactorC
 
-LibData$C_RELATNscore <- LibData$C_RELATNscore * ScoreFactorB
+LibData$C_RELATNscore <- LibData$C_RELATNscore * ScoreFactorC
 LibData$POPU_LSAscore <- LibData$POPU_LSAscore * ScoreFactorD
 LibData$BRANLIBscore  <- LibData$BRANLIBscore * ScoreFactorB
 LibData$BKMOBscore    <- LibData$BKMOBscore * ScoreFactorB
-LibData$TOTSTAFFscore <- LibData$TOTSTAFFscore * ScoreFactorC
+LibData$TOTSTAFFscore <- LibData$TOTSTAFFscore * ScoreFactorD
 LibData$TOTINCMscore <- LibData$TOTINCMscore * ScoreFactorD
 LibData$LocIncScore <- LibData$LocIncScore * ScoreFactorB
-LibData$HRS_OPENscore <- LibData$HRS_OPENscore * ScoreFactorC
+LibData$HRS_OPENscore <- LibData$HRS_OPENscore * ScoreFactorD
 LibData$TOTCIRscore <- LibData$TOTCIRscore * ScoreFactorD
 LibData$CircChildscore <- LibData$CircChildscore * ScoreFactorB
-LibData$TOTPROscore <- LibData$TOTPROscore * ScoreFactorC
+LibData$TOTPROscore <- LibData$TOTPROscore * ScoreFactorD
 LibData$ChildProgScore <- LibData$ChildProgScore * ScoreFactorB
 
 
@@ -172,16 +172,36 @@ LibDataDisplay$`Local Gvt Funding Percentage` <- percent(LibDataDisplay$LOCGVT /
 LibDataDisplay$`Children's Circulation Share of Total` <- percent(LibDataDisplay$KIDCIRCL / LibDataDisplay$TOTCIR )
 LibDataDisplay$`Children's Programming Share of Total` <- percent(LibDataDisplay$KIDPRO / LibDataDisplay$TOTPRO )
 
-colnames(LibDataDisplay) <- c("rowname", "State", "Library Name", "Address", "City", "Zip Code", "Phone Number", "LONGITUD", "LATITUDE",
+colnames(LibDataDisplay) <- c("rowname", "State", "Library Name", "Address", "City", "Zip Code", "Phone Number", "Longitude", "Latitude",
                               "Belongs to a Cooperative", "Population of Legal Service Area", "# of Branch Libraries", "# of Bookmobiles", 
                               "Total Staff Count", "Total Income", "LOCGVT", "Hours Open", "Total Circulation", "KIDCIRCL", 
                               "Total Programs", "KIDPRO", "Local Gvt Funding Percentage", "Children's Circulation Share of Total",
                               "Children's Programming Share of Total")
 
+LibDataDisplay$PopupText <- (paste0("<b>",LibDataDisplay$`Library Name`,"</b>", 
+                                    "</br></br>",
+                                    LibDataDisplay$Address, "</br>",
+                                    LibDataDisplay$City, ", ", LibDataDisplay$State,
+                                    "</br></br>", 
+                                    substring(LibDataDisplay$`Phone Number`,1,3),"-",
+                                    substring(LibDataDisplay$`Phone Number`,4,6),"-",
+                                    substring(LibDataDisplay$`Phone Number`,7,10)))
+
+LibDataDisplay <- LibDataDisplay %>% group_by(State, `Library Name`) %>%
+                    mutate(NameCt = row_number()) %>% 
+                    ungroup()
+
+LibDataDisplay$`Library Name` <- ifelse(LibDataDisplay$NameCt == 2,
+                                        paste0(LibDataDisplay$`Library Name`, " 2"),
+                                        LibDataDisplay$`Library Name`)
+
 
 LibNames <- LibDataDisplay %>% select(`Library Name`, rowname, State) %>% arrange(`Library Name`)
 
-remove(LibData, ScoreFactorA, ScoreFactorB, ScoreFactorC, ScoreFactorD, maxSc, minSc, lut)
+
+
+
+#remove(LibData, ScoreFactorA, ScoreFactorB, ScoreFactorC, ScoreFactorD, maxSc, minSc, lut, temp)
 
 # 
 # LibData %>% filter(LIBNAME == "PIMA COUNTY PUBLIC LIBRARY") %>% select("rowname")
