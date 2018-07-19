@@ -16,6 +16,8 @@ shinyServer(function(input, output) {
     
   LibsInState <- reactive({
     
+
+    
     LibNames %>% filter(State == input$StateSelect) %>%
       select(`Library Name`)
     
@@ -76,9 +78,8 @@ shinyServer(function(input, output) {
   })
   
   output$map <- renderLeaflet({
-    
-    
-    
+  
+
     leaflet() %>% addTiles() %>%
                     addMarkers(data = PeerGroupMap(), popup = ~as.character(PopupText))
   })
