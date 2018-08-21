@@ -1,6 +1,3 @@
-
-
-
 ## Add text to homepage describing process
 ## fix color on box
 ## update table util
@@ -10,13 +7,18 @@ library(dplyr)
 library(shiny)
 library(leaflet)
 
-shinyServer(function(input, output) {
+Distances <- readRDS("Distances.rds")
+LibDataDisplay <- readRDS("LibDataDisplay.rds")
+LibNames <- readRDS("LibNames.rds")
 
-## input controls
-    
+
+shinyServer(function(input, output) {
+  
+  ## input controls
+  
   LibsInState <- reactive({
     
-
+    
     
     LibNames %>% filter(State == input$StateSelect) %>%
       select(`Library Name`)
@@ -29,22 +31,22 @@ shinyServer(function(input, output) {
                 choices = LibsInState()$`Library Name`)
     
   })
-
-## output controls
-
+  
+  ## output controls
+  
   LibSelected <- reactive({
     
     LibNames %>% filter(`Library Name` == input$LibSelect & 
-                        State == input$StateSelect) %>% select(rowname)
+                          State == input$StateSelect) %>% select(rowname)
     
   })
-      
+  
   PeerGroup <- reactive({
     
     validate(
       need(input$LibSelect != "", "")
     )
-          
+    
     LibDataDisplay %>% filter(rowname == LibSelected()$rowname) %>%
       bind_rows(
         Distances %>% filter(rowname == LibSelected()$rowname) %>% arrange(rank) %>% select(rank, rownameOf2ndLib) %>%
@@ -62,13 +64,13 @@ shinyServer(function(input, output) {
   output$table <- renderDataTable(PeerGroup(), options = list(paging = FALSE, searching = FALSE, pageLength = 26))
   
   PeerGroupMap <- reactive({
-
+    
     
     validate(
       need(input$LibSelect != "", "")
     )
     
-        
+    
     LibDataDisplay %>% filter(rowname == LibSelected()$rowname) %>%
       bind_rows(
         Distances %>% filter(rowname == LibSelected()$rowname) %>% select(rank, rownameOf2ndLib) %>%
@@ -78,10 +80,10 @@ shinyServer(function(input, output) {
   })
   
   output$map <- renderLeaflet({
-  
-
+    
+    
     leaflet() %>% addTiles() %>%
-                    addMarkers(data = PeerGroupMap(), popup = ~as.character(PopupText))
+      addMarkers(data = PeerGroupMap(), popup = ~as.character(PopupText))
   })
   
 })

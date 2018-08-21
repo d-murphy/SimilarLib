@@ -188,8 +188,8 @@ LibDataDisplay$PopupText <- (paste0("<b>",LibDataDisplay$`Library Name`,"</b>",
                                     substring(LibDataDisplay$`Phone Number`,7,10)))
 
 LibDataDisplay <- LibDataDisplay %>% group_by(State, `Library Name`) %>%
-                    mutate(NameCt = row_number()) %>% 
-                    ungroup()
+  mutate(NameCt = row_number()) %>% 
+  ungroup()
 
 LibDataDisplay$`Library Name` <- ifelse(LibDataDisplay$NameCt == 2,
                                         paste0(LibDataDisplay$`Library Name`, " 2"),
@@ -198,8 +198,9 @@ LibDataDisplay$`Library Name` <- ifelse(LibDataDisplay$NameCt == 2,
 
 LibNames <- LibDataDisplay %>% select(`Library Name`, rowname, State) %>% arrange(`Library Name`)
 
-
-
+saveRDS(Distances, "Distances.rds")
+saveRDS(LibDataDisplay, "LibDataDisplay.rds")
+saveRDS(LibNames, "LibNames.rds")
 
 #remove(LibData, ScoreFactorA, ScoreFactorB, ScoreFactorC, ScoreFactorD, maxSc, minSc, lut, temp)
 
